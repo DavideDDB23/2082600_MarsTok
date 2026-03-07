@@ -14,7 +14,7 @@ import { get, post, put, patch, del } from "./client";
 import type { Rule } from "../types/rule";
 
 export const fetchRules = (): Promise<Rule[]> =>
-  get<Rule[]>("/rules");
+  get<Rule[]>("/rules/");
 
 export const fetchRule = (id: string): Promise<Rule> =>
   get<Rule>(`/rules/${id}`);
@@ -22,7 +22,7 @@ export const fetchRule = (id: string): Promise<Rule> =>
 export const createRule = (
   data: Omit<Rule, "id" | "created_at" | "updated_at">,
 ): Promise<Rule> =>
-  post<Rule>("/rules", data);
+  post<Rule>("/rules/", data);
 
 export const updateRule = (id: string, data: Partial<Rule>): Promise<Rule> =>
   put<Rule>(`/rules/${id}`, data);

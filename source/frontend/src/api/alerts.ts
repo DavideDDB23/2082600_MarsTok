@@ -22,7 +22,7 @@ export const fetchAlerts = (params: AlertsParams = {}): Promise<AlertsPage> => {
   if (params.skip      != null)  qs.set("skip",      String(params.skip));
   if (params.limit     != null)  qs.set("limit",     String(params.limit));
   const suffix = qs.toString() ? `?${qs}` : "";
-  return get<AlertsPage>(`/alerts${suffix}`);
+  return get<AlertsPage>(`/alerts/${suffix}`);
 };
 
 export const fetchAlert = (id: string): Promise<Alert> =>

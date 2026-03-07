@@ -15,7 +15,7 @@ export interface SetActuatorResponse {
 }
 
 export const fetchActuators = (): Promise<ActuatorsResponse> =>
-  get<ActuatorsResponse>("/actuators");
+  get<ActuatorsResponse>("/actuators/");
 
 export const setActuator = (
   name:  string,

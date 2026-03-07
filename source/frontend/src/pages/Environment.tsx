@@ -20,12 +20,12 @@ const ENV_SOURCES = [
 
 // Charts for scalar sensors (one metric each)
 const CHARTS = [
-  { id: "greenhouse_temperature", metric: "value",     label: "Greenhouse Temperature",  color: "#fb923c" },
-  { id: "entrance_humidity",      metric: "value",     label: "Entrance Humidity",        color: "#60a5fa" },
-  { id: "co2_hall",               metric: "value",     label: "CO₂ Hall",                 color: "#34d399" },
-  { id: "corridor_pressure",      metric: "value",     label: "Corridor Pressure",        color: "#facc15" },
-  { id: "air_quality_pm25",       metric: "pm25_ug_m3", label: "Air Quality PM2.5",       color: "#f87171" },
-  { id: "water_tank_level",       metric: "level_pct", label: "Water Tank Level (%)",     color: "#a78bfa" },
+  { id: "greenhouse_temperature", metric: "temperature_c", label: "Greenhouse Temperature",  color: "#fb923c" },
+  { id: "entrance_humidity",      metric: "humidity_pct",  label: "Entrance Humidity",        color: "#60a5fa" },
+  { id: "co2_hall",               metric: "co2_ppm",       label: "CO₂ Hall",                 color: "#34d399" },
+  { id: "corridor_pressure",      metric: "pressure_kpa",  label: "Corridor Pressure",        color: "#facc15" },
+  { id: "air_quality_pm25",       metric: "pm25_ug_m3",    label: "Air Quality PM2.5",        color: "#f87171" },
+  { id: "water_tank_level",       metric: "level_pct",     label: "Water Tank Level (%)",     color: "#a78bfa" },
 ];
 
 export default function Environment() {
