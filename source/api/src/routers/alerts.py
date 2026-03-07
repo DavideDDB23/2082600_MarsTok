@@ -31,10 +31,10 @@ def _alert_to_dict(a: Alert) -> dict:
 
 @router.get("/", summary="List alerts (newest first)")
 async def list_alerts(
-    skip:     int            = Query(0,    ge=0,        description="Pagination offset"),
-    limit:    int            = Query(50,   ge=1, le=200, description="Page size"),
-    rule_id:  Optional[str]  = Query(None, description="Filter by rule_id"),
-    source_id: Optional[str] = Query(None, description="Filter by triggered_event source_id"),
+    offset:    int            = Query(0,    ge=0,        description="Pagination offset"),
+    limit:     int            = Query(50,   ge=1, le=200, description="Page size"),
+    rule_id:   Optional[str]  = Query(None, description="Filter by rule_id"),
+    source_id: Optional[str]  = Query(None, description="Filter by triggered_event source_id"),
     db: AsyncSession = Depends(get_db),
 ):
     """
@@ -53,10 +53,10 @@ async def list_alerts(
     total: int   = total_result.scalar_one()
 
     result = await db.execute(
-        q.order_by(Alert.triggered_at.desc()).offset(skip).limit(limit)
+        q.order_by(Alert.triggered_at.desc()).offset(offset).limit(limit)
     )
     items = [_alert_to_dict(a) for a in result.scalars().all()]
-    return {"total": total, "skip": skip, "limit": limit, "items": items}
+    return {"total": total, "offset": offset, "limit": limit, "items": items}
 
 
 @router.get("/{alert_id}", summary="Get a single alert")

@@ -3,22 +3,34 @@
  *
  * Historical pages come from GET /api/alerts (REST).
  * New alerts are delivered via the SSE context in App.tsx.
- * US20: filter bar lets operators filter by rule_id or source_id.
+ * US20: filter bar (dropdowns) lets operators filter by rule or source.
  */
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AlertTimeline } from "../components/AlertTimeline";
 import { useLiveData } from "../App";
-import { deleteAlert, getAlerts } from "../api";
+import { deleteAlert, getAlerts, fetchRules } from "../api";
 import type { Alert } from "../types";
+import type { Rule } from "../types/rule";
 
 const PAGE_SIZE = 50;
 
 export default function Alerts() {
-  const { recentAlerts } = useLiveData();
+  const { recentAlerts, sensorStates } = useLiveData();
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [total,  setTotal]  = useState(0);
-  const [skip,   setSkip]   = useState(0);
+  const [offset, setOffset] = useState(0);
   const [error,  setError]  = useState<string | null>(null);
+
+  // ── Dropdown option lists ────────────────────────────────────────────────
+  const [rules, setRules] = useState<Rule[]>([]);
+  useEffect(() => {
+    fetchRules().then(setRules).catch(() => {/* ignore — dropdowns just stay empty */});
+  }, []);
+
+  const sourceIds = useMemo(
+    () => Object.keys(sensorStates).sort(),
+    [sensorStates],
+  );
 
   // ── US20: filter state ───────────────────────────────────────────────────
   const [filterRuleId,   setFilterRuleId]   = useState("");
@@ -28,10 +40,10 @@ export default function Alerts() {
   // a live SSE alert also appears in the paginated REST response.
   const seenRef = useRef<Set<string>>(new Set());
 
-  const refresh = useCallback(async (offset = skip) => {
+  const refresh = useCallback(async (off = offset) => {
     try {
       const page = await getAlerts({
-        skip:      offset,
+        offset:    off,
         limit:     PAGE_SIZE,
         rule_id:   filterRuleId   || undefined,
         source_id: filterSourceId || undefined,
@@ -43,7 +55,7 @@ export default function Alerts() {
     } catch (e) {
       setError(String(e));
     }
-  }, [skip, filterRuleId, filterSourceId]);
+  }, [offset, filterRuleId, filterSourceId]);
 
   useEffect(() => { refresh(); }, [refresh]);
 
@@ -67,29 +79,37 @@ export default function Alerts() {
     }
   };
 
-  const applyFilters = (e: React.FormEvent) => {
-    e.preventDefault();
-    setSkip(0);
-    refresh(0);
+  // Changing a dropdown resets to page 0; React 18 batches the two setStates
+  // so `refresh` re-runs once with both new values via the useEffect above.
+  const handleRuleChange = (val: string) => {
+    setFilterRuleId(val);
+    setOffset(0);
+  };
+
+  const handleSourceChange = (val: string) => {
+    setFilterSourceId(val);
+    setOffset(0);
   };
 
   const clearFilters = () => {
     setFilterRuleId("");
     setFilterSourceId("");
-    setSkip(0);
+    setOffset(0);
   };
 
   const prevPage = () => {
-    const next = Math.max(0, skip - PAGE_SIZE);
-    setSkip(next);
+    const next = Math.max(0, offset - PAGE_SIZE);
+    setOffset(next);
     refresh(next);
   };
 
   const nextPage = () => {
-    const next = skip + PAGE_SIZE;
-    setSkip(next);
+    const next = offset + PAGE_SIZE;
+    setOffset(next);
     refresh(next);
   };
+
+  const isFiltered = filterRuleId !== "" || filterSourceId !== "";
 
   return (
     <div>
@@ -102,36 +122,46 @@ export default function Alerts() {
         </div>
       </div>
 
-      {/* ── US20: Filter bar ────────────────────────────────────────────────── */}
-      <form
-        onSubmit={applyFilters}
-        className="flex flex-wrap gap-3 items-end mb-6 p-4 bg-gray-900 border border-gray-800 rounded-xl"
-      >
+      {/* ── US20: Filter bar (dropdowns) ─────────────────────────────────────── */}
+      <div className="flex flex-wrap gap-3 items-end mb-6 p-4 bg-gray-900 border border-gray-800 rounded-xl">
+        {/* Rule dropdown */}
         <div className="flex flex-col gap-1">
-          <label className="text-xs text-gray-400">Rule ID</label>
-          <input
+          <label className="text-xs text-gray-400">Rule</label>
+          <select
             className="input w-56"
-            placeholder="filter by rule_id…"
             value={filterRuleId}
-            onChange={(e) => setFilterRuleId(e.target.value)}
-          />
+            onChange={(e) => handleRuleChange(e.target.value)}
+          >
+            <option value="">All rules</option>
+            {rules.map((r) => (
+              <option key={r.id} value={r.id!}>
+                {r.name}
+              </option>
+            ))}
+          </select>
         </div>
+
+        {/* Source ID dropdown */}
         <div className="flex flex-col gap-1">
-          <label className="text-xs text-gray-400">Source ID</label>
-          <input
+          <label className="text-xs text-gray-400">Source</label>
+          <select
             className="input w-56"
-            placeholder="filter by source_id…"
             value={filterSourceId}
-            onChange={(e) => setFilterSourceId(e.target.value)}
-          />
+            onChange={(e) => handleSourceChange(e.target.value)}
+          >
+            <option value="">All sources</option>
+            {sourceIds.map((id) => (
+              <option key={id} value={id}>{id}</option>
+            ))}
+          </select>
         </div>
-        <button type="submit" className="btn-primary">
-          Apply
-        </button>
-        <button type="button" onClick={clearFilters} className="btn-secondary">
-          Clear
-        </button>
-      </form>
+
+        {isFiltered && (
+          <button type="button" onClick={clearFilters} className="btn-secondary self-end">
+            Clear filters
+          </button>
+        )}
+      </div>
 
       {error && (
         <div className="mb-4 p-3 bg-red-950 border border-red-800 rounded-lg text-red-300 text-sm">
@@ -146,17 +176,17 @@ export default function Alerts() {
         <div className="flex items-center justify-between mt-6">
           <button
             onClick={prevPage}
-            disabled={skip === 0}
+            disabled={offset === 0}
             className="btn-secondary disabled:opacity-40"
           >
             ← Previous
           </button>
           <span className="text-xs text-gray-500">
-            {skip + 1}–{Math.min(skip + PAGE_SIZE, total)} of {total}
+            {offset + 1}–{Math.min(offset + PAGE_SIZE, total)} of {total}
           </span>
           <button
             onClick={nextPage}
-            disabled={skip + PAGE_SIZE >= total}
+            disabled={offset + PAGE_SIZE >= total}
             className="btn-secondary disabled:opacity-40"
           >
             Next →

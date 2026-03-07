@@ -32,8 +32,8 @@ export interface ActuatorsResponse {
 
 /** Paginated alerts response from GET /api/alerts */
 export interface AlertsPage {
-  total: number;
-  skip:  number;
-  limit: number;
-  items: import("./alert").Alert[];
+  total:  number;
+  offset: number;
+  limit:  number;
+  items:  import("./alert").Alert[];
 }
