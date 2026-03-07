@@ -4,7 +4,14 @@
 import { useEffect, useState } from "react";
 import type { Rule } from "../types";
 
-const OPERATORS = ["gt", "lt", "gte", "lte", "eq", "neq"] as const;
+const OPERATORS: { value: string; label: string }[] = [
+  { value: "gt",  label: ">"  },
+  { value: "lt",  label: "<"  },
+  { value: "gte", label: ">=" },
+  { value: "lte", label: "<=" },
+  { value: "eq",  label: "="  },
+  { value: "neq", label: "!=" },
+];
 
 const EMPTY_RULE: Rule = {
   name:      "",
@@ -97,7 +104,7 @@ export function RuleForm({ initial, onSave, onCancel }: Props) {
               onChange={(e) => set("condition.operator", e.target.value)}
             >
               {OPERATORS.map((op) => (
-                <option key={op} value={op}>{op}</option>
+                <option key={op.value} value={op.value}>{op.label}</option>
               ))}
             </select>
           </div>

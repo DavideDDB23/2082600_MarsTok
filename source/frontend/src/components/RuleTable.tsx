@@ -4,6 +4,15 @@
 import { Trash2 } from "lucide-react";
 import type { Rule } from "../types";
 
+const OPERATOR_SYMBOLS: Record<string, string> = {
+  gt:  ">",
+  lt:  "<",
+  gte: ">=",
+  lte: "<=",
+  eq:  "=",
+  neq: "!=",
+};
+
 interface Props {
   rules:    Rule[];
   onToggle: (id: string) => void;
@@ -41,7 +50,7 @@ export function RuleTable({ rules, onToggle, onDelete, onEdit }: Props) {
               <td className="px-4 py-3 font-medium text-white">{rule.name}</td>
               <td className="px-4 py-3 text-gray-400 font-mono text-xs">
                 {rule.condition.source_id} · {rule.condition.metric}{" "}
-                <span className="text-mars-400">{rule.condition.operator}</span>{" "}
+                <span className="text-mars-400">{OPERATOR_SYMBOLS[rule.condition.operator] ?? rule.condition.operator}</span>{" "}
                 {rule.condition.threshold}
               </td>
               <td className="px-4 py-3 text-gray-400 text-xs">
