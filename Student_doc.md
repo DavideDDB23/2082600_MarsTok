@@ -107,7 +107,7 @@ The Rules Engine requires persistence for:
 
 ### EXTERNAL SERVICES CONNECTIONS
 Connects to:
-- `rabbitmq:5672` — consumes from `mars.events.rules-engine` queue
+- `rabbitmq:5672` — consumes via an exclusive anonymous queue bound to the `mars.events` fanout exchange
 - `redis:6379` — writes state cache keys; publishes to `mars.events` and `mars.alerts` pub/sub channels
 - `postgres:5432` — reads rules, writes alerts
 - `mars-iot-simulator:8080` — POST requests to trigger actuators
@@ -173,7 +173,7 @@ The HTTP and SSE gateway between the frontend and all backend services. Provides
 The API container is a FastAPI application served by Uvicorn. It has no internal business logic — it reads from Redis and PostgreSQL and proxies to the simulator. It acts as the single integration point for the frontend.
 
 ### PERSISTENCE EVALUATION
-The API service does not own any persistent storage. It reads from PostgreSQL (rules, alerts) and Redis (state cache) managed by the Rules Engine container.
+The API service does not own any persistent storage. It reads and writes PostgreSQL (full CRUD on rules; read and delete on alerts) and reads Redis (state cache). All persistent data is owned and migrated by the Rules Engine container.
 
 ### EXTERNAL SERVICES CONNECTIONS
 Connects to:
