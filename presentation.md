@@ -50,15 +50,14 @@ style: |
   pre code { color: #e2e8f0; background: none; padding: 0; font-size: 0.75em; line-height: 1.55; }
   table { width: 100%; border-collapse: collapse; font-size: 0.8em; margin: 10px 0; }
   th { background: #1e293b; color: #f97316; padding: 10px 14px; text-align: left; border-bottom: 2px solid #334155; text-transform: uppercase; font-size: 0.8em; letter-spacing: 0.06em; }
-  td { padding: 9px 14px; border-bottom: 1px solid #1e293b; }
+  td { padding: 9px 14px; border-bottom: 1px solid #334155; }
   tr:nth-child(even) td { background: rgba(255,255,255,0.015); }
-  section::after { color: #475569; font-size: 0.65em; }
+  section::after { color: #64748b; font-size: 0.65em; }
   section.lead { display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 60px; }
   section.lead h1 { font-size: 3em; margin-bottom: 12px; line-height: 1.1; }
   section.lead h2 { border: none; color: #94a3b8; font-weight: 400; font-size: 1.25em; margin: 0; }
   .two-col   { display: grid; grid-template-columns: 1fr 1fr;       gap: 30px; margin-top: 6px; }
   .col-6040  { display: grid; grid-template-columns: 1.5fr 1fr;     gap: 30px; margin-top: 6px; }
-  .col-4060  { display: grid; grid-template-columns: 1fr 1.5fr;     gap: 30px; margin-top: 6px; }
   .col { min-width: 0; }
   .card { background: #1e293b; border: 1px solid #334155; border-radius: 9px; padding: 12px 16px; margin: 5px 0; }
   .card-o { border-left: 3px solid #f97316; }
@@ -74,7 +73,7 @@ style: |
   .stat-row { display: flex; gap: 14px; margin-top: 14px; }
   .stat { background: #1e293b; border: 1px solid #334155; border-radius: 9px; padding: 11px 14px; text-align: center; flex: 1; }
   .stat-n { font-size: 1.65em; font-weight: 800; color: #f97316; line-height: 1; }
-  .stat-l { font-size: 0.63em; color: #94a3b8; margin-top: 3px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .stat-l { font-size: 0.7em; color: #94a3b8; margin-top: 3px; text-transform: uppercase; letter-spacing: 0.05em; }
   .url { background: #1e293b; border: 1px solid #334155; border-radius: 7px; padding: 8px 14px; font-family: 'Fira Code', monospace; font-size: 0.8em; color: #34d399; margin: 5px 0; }
   .step { display: flex; gap: 11px; margin: 6px 0; align-items: flex-start; }
   .sn { background: #f97316; color: #fff; border-radius: 6px; width: 23px; height: 23px; display: flex; align-items: center; justify-content: center; font-size: 0.7em; font-weight: 800; flex-shrink: 0; margin-top: 2px; }
@@ -270,12 +269,12 @@ topic.power.v1 · topic.environment.v1 · topic.thermal_loop.v1 · topic.airlock
 
 ### Supported Operators
 
-<span class="pill p-o">&gt;&nbsp; greater than</span>
-<span class="pill p-o">&lt;&nbsp; less than</span>
-<span class="pill p-o">&ge;&nbsp; gte</span>
-<span class="pill p-o">&le;&nbsp; lte</span>
-<span class="pill p-o">=&nbsp; equal</span>
-<span class="pill p-o">&ne;&nbsp; not equal</span>
+<span class="pill p-o">&gt;&nbsp; gt</span>
+<span class="pill p-o">&lt;&nbsp; lt</span>
+<span class="pill p-o">&gt;=&nbsp; gte</span>
+<span class="pill p-o">&lt;=&nbsp; lte</span>
+<span class="pill p-o">=&nbsp; eq</span>
+<span class="pill p-o">!=&nbsp; neq</span>
 
 ### Rule Lifecycle
 
