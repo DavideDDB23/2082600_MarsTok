@@ -37,6 +37,21 @@ export function useSSE(): SSEState {
   const retryRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const esRef    = useRef<EventSource | null>(null);
 
+  // ── US4: Pre-populate state from REST on mount so the dashboard is never blank ──
+  useEffect(() => {
+    fetch("/api/state/")
+      .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
+      .then((states: StateMap) => {
+        setSensorStates((prev) => {
+          // SSE updates take priority over the snapshot — merge, live wins
+          const merged = { ...states, ...prev };
+          return merged;
+        });
+        setLastUpdated(new Date());
+      })
+      .catch(() => {/* silently ignore — SSE will populate shortly */});
+  }, []);
+
   const handleSensorUpdate = useCallback((e: MessageEvent) => {
     try {
       const event = JSON.parse(e.data) as SensorState;

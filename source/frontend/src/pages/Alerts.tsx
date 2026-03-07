@@ -3,6 +3,7 @@
  *
  * Historical pages come from GET /api/alerts (REST).
  * New alerts are delivered via the SSE context in App.tsx.
+ * US20: filter bar lets operators filter by rule_id or source_id.
  */
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AlertTimeline } from "../components/AlertTimeline";
@@ -19,13 +20,22 @@ export default function Alerts() {
   const [skip,   setSkip]   = useState(0);
   const [error,  setError]  = useState<string | null>(null);
 
+  // ── US20: filter state ───────────────────────────────────────────────────
+  const [filterRuleId,   setFilterRuleId]   = useState("");
+  const [filterSourceId, setFilterSourceId] = useState("");
+
   // Track which alert ids we've already added to avoid duplicates when
   // a live SSE alert also appears in the paginated REST response.
   const seenRef = useRef<Set<string>>(new Set());
 
   const refresh = useCallback(async (offset = skip) => {
     try {
-      const page = await getAlerts({ skip: offset, limit: PAGE_SIZE });
+      const page = await getAlerts({
+        skip:      offset,
+        limit:     PAGE_SIZE,
+        rule_id:   filterRuleId   || undefined,
+        source_id: filterSourceId || undefined,
+      });
       seenRef.current = new Set(page.items.map((a) => a.id));
       setAlerts(page.items);
       setTotal(page.total);
@@ -33,7 +43,7 @@ export default function Alerts() {
     } catch (e) {
       setError(String(e));
     }
-  }, [skip]);
+  }, [skip, filterRuleId, filterSourceId]);
 
   useEffect(() => { refresh(); }, [refresh]);
 
@@ -55,6 +65,18 @@ export default function Alerts() {
     } catch (e) {
       setError(String(e));
     }
+  };
+
+  const applyFilters = (e: React.FormEvent) => {
+    e.preventDefault();
+    setSkip(0);
+    refresh(0);
+  };
+
+  const clearFilters = () => {
+    setFilterRuleId("");
+    setFilterSourceId("");
+    setSkip(0);
   };
 
   const prevPage = () => {
@@ -79,6 +101,37 @@ export default function Alerts() {
           </p>
         </div>
       </div>
+
+      {/* ── US20: Filter bar ────────────────────────────────────────────────── */}
+      <form
+        onSubmit={applyFilters}
+        className="flex flex-wrap gap-3 items-end mb-6 p-4 bg-gray-900 border border-gray-800 rounded-xl"
+      >
+        <div className="flex flex-col gap-1">
+          <label className="text-xs text-gray-400">Rule ID</label>
+          <input
+            className="input w-56"
+            placeholder="filter by rule_id…"
+            value={filterRuleId}
+            onChange={(e) => setFilterRuleId(e.target.value)}
+          />
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-xs text-gray-400">Source ID</label>
+          <input
+            className="input w-56"
+            placeholder="filter by source_id…"
+            value={filterSourceId}
+            onChange={(e) => setFilterSourceId(e.target.value)}
+          />
+        </div>
+        <button type="submit" className="btn-primary">
+          Apply
+        </button>
+        <button type="button" onClick={clearFilters} className="btn-secondary">
+          Clear
+        </button>
+      </form>
 
       {error && (
         <div className="mb-4 p-3 bg-red-950 border border-red-800 rounded-lg text-red-300 text-sm">
@@ -113,3 +166,4 @@ export default function Alerts() {
     </div>
   );
 }
+
