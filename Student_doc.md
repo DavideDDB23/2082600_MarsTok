@@ -141,7 +141,7 @@ Connects to:
 
   **_rules_** : | **_id_** (UUID PK) | name (TEXT) | enabled (BOOL) | condition (JSONB) | action (JSONB) | created_at (TIMESTAMPTZ) | updated_at (TIMESTAMPTZ) |
 
-  **_alerts_** : | **_id_** (UUID PK) | rule_id (UUID FK→rules.id) | triggered_event (JSONB) | triggered_at (TIMESTAMPTZ) |
+  **_alerts_** : | **_id_** (UUID PK) | rule_id (UUID FK→rules.id) | rule_name (TEXT NOT NULL) | triggered_event (JSONB) | triggered_at (TIMESTAMPTZ) |
 
 
 ---
@@ -210,16 +210,21 @@ Connects to:
   | POST | /api/rules | Creates a new rule | 13 |
   | GET | /api/rules/{rule_id} | Returns a single rule | 14, 15 |
   | PUT | /api/rules/{rule_id} | Full update of a rule | 15 |
+  | PATCH | /api/rules/{rule_id} | Sets rule enabled state; body: {"enabled": true/false} | 16 |
   | PATCH | /api/rules/{rule_id}/toggle | Flips the enabled boolean | 16 |
   | DELETE | /api/rules/{rule_id} | Deletes a rule | 17 |
   | GET | /api/alerts | Returns paginated alerts; query: ?rule_id=, ?source_id=, ?limit=, ?offset= | 19, 20 |
+  | GET | /api/alerts/{alert_id} | Returns a single alert | 19 |
+  | DELETE | /api/alerts/{alert_id} | Deletes an alert | 19 |
   | GET | /api/stream | SSE stream: sensor_update and alert events from Redis pub/sub | 3, 5, 6, 7, 8, 19 |
+  | GET | /api/stream/events | SSE stream: sensor_update events only | 3 |
+  | GET | /api/stream/alerts | SSE stream: alert events only | 19 |
 
 - DB STRUCTURE:
 
   **_rules_** : | **_id_** (UUID PK) | name (TEXT) | enabled (BOOL) | condition (JSONB) | action (JSONB) | created_at (TIMESTAMPTZ) | updated_at (TIMESTAMPTZ) |
 
-  **_alerts_** : | **_id_** (UUID PK) | rule_id (UUID FK→rules.id) | triggered_event (JSONB) | triggered_at (TIMESTAMPTZ) |
+  **_alerts_** : | **_id_** (UUID PK) | rule_id (UUID FK→rules.id) | rule_name (TEXT NOT NULL) | triggered_event (JSONB) | triggered_at (TIMESTAMPTZ) |
 
 
 ---
@@ -272,7 +277,7 @@ Connects to:
 - TECHNOLOGICAL SPECIFICATION:
   Built with:
   - React 18 + TypeScript + Vite (build tool)
-  - TailwindCSS + shadcn/ui for styling and UI components
+  - TailwindCSS for styling, lucide-react for icons
   - Recharts for live line charts
   - react-router-dom v6 for client-side routing
   - Native `EventSource` API for SSE consumption
@@ -283,8 +288,8 @@ Connects to:
   | Name | Description | Related Microservice | User Stories |
   | ---- | ----------- | -------------------- | ------------ |
   | Dashboard | Grid of SensorWidget cards for all sensors; updates live via SSE | api | 1, 2, 3, 4, 9, 10 |
-  | Power | Three live Recharts LineCharts for solar array, power bus, consumption | api | 5 |
-  | Environment | Life support and radiation measurement cards with status badges | api | 6 |
+  | Power | Six live Recharts LineCharts for solar array, power bus, and consumption metrics (power, voltage, current, cumulative) | api | 5 |
+  | Environment | Life support & radiation telemetry cards with status badges, environmental REST sensor widgets (temperature, humidity, CO₂, pressure, air quality, water level), and live trend charts | api | 6, 9, 10 |
   | Airlock & Thermal | Airlock state badge + thermal loop LiveChart | api | 7, 8 |
   | Actuators | ActuatorCard toggles for all actuators with live state | api | 11, 12 |
   | Rules | RuleTable + RuleForm dialog for full CRUD + enable/disable | api | 13, 14, 15, 16, 17, 18 |
@@ -349,4 +354,4 @@ None.
 
   **_rules_** : | **_id_** (UUID PK) | name (TEXT NOT NULL) | enabled (BOOL DEFAULT TRUE) | condition (JSONB NOT NULL) | action (JSONB NOT NULL) | created_at (TIMESTAMPTZ) | updated_at (TIMESTAMPTZ) |
 
-  **_alerts_** : | **_id_** (UUID PK) | rule_id (UUID FK→rules) | triggered_event (JSONB NOT NULL) | triggered_at (TIMESTAMPTZ) |
+  **_alerts_** : | **_id_** (UUID PK) | rule_id (UUID FK→rules) | rule_name (TEXT NOT NULL) | triggered_event (JSONB NOT NULL) | triggered_at (TIMESTAMPTZ) |

@@ -1,7 +1,7 @@
 /**
  * api/alerts.ts — Alert history endpoints.
  *
- * GET    /api/alerts           → AlertsPage (supports ?rule_id, ?source_id, ?skip, ?limit)
+ * GET    /api/alerts           → AlertsPage (supports ?rule_id, ?source_id, ?offset, ?limit)
  * DELETE /api/alerts/{id}      → 204
  */
 
