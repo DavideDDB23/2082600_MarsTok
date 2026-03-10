@@ -72,7 +72,9 @@ services:
     build:
       context: .
       dockerfile: collector/Dockerfile
-    env_file: .env
+    env_file:
+      - path: .env
+        required: false
     depends_on:
       rabbitmq:
         condition: service_healthy
@@ -85,7 +87,9 @@ services:
     build:
       context: .
       dockerfile: rules-engine/Dockerfile
-    env_file: .env
+    env_file:
+      - path: .env
+        required: false
     depends_on:
       rabbitmq:
         condition: service_healthy
@@ -102,7 +106,9 @@ services:
       dockerfile: api/Dockerfile
     ports:
       - "8000:8000"
-    env_file: .env
+    env_file:
+      - path: .env
+        required: false
     depends_on:
       redis:
         condition: service_healthy
