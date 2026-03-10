@@ -2,6 +2,7 @@
 # =============================================================================
 # load-image.sh — Load the Mars IoT Simulator OCI image into Docker daemon
 # =============================================================================
+# MAC ONLY
 # Run this script ONCE before `docker compose up --build`.
 # It finds the OCI image directory relative to this script's location,
 # then uses skopeo (installed automatically via Homebrew if missing) to copy
